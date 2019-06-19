@@ -35,6 +35,7 @@ class BestProtocol():
 
     def _evalWaypoint(self, data):
 
+        rospy.loginfo('Evaluating waypoint')
         corrected_Waypoint = Pose()
 
         waypoint_x = data.position.x
@@ -51,3 +52,15 @@ class BestProtocol():
             corrected_Waypoint.position.z = waypoint_z
 
         self.pub.publish(corrected_Waypoint)
+
+def main():
+    rospy.init_node('protocol_node')
+    BestProtocolObject = BestProtocol()
+
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except:
+        rospy.loginfo("User terminated")

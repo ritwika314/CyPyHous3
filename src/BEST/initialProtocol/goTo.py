@@ -19,7 +19,7 @@ class MotionAutomaton():
 
          self.__pub = rospy.Publisher('Waypoint_bot', Pose, queue_size=1)
          self.__sub_reached = rospy.Subscriber('/Reached', String, self._getReached, queue_size=1)
-         self.__sub_odom = rospy.Subscriber('/odom', Odometry, self._getOdom, queue_size=1) #Subscribeed to odom instead of vicon
+         self.__sub_odom = rospy.Subscriber('/drone1/ground_truth/state', Odometry, self._getOdom, queue_size=1) #Subscribeed to odom instead of vicon
 
          time.sleep(1)
 
@@ -38,17 +38,17 @@ class MotionAutomaton():
         """
         self.position = data.pose
 
-    def goTo(self, dest):  # -> NoReturn:
+    def goTo(self, x, y, z):  # -> NoReturn:
 
         """
         noramally PoseStamped would be used, but pose will be used for simplicity here
         """
-
-        pose = Pose()
-        pose.pose = dest
+        rospy.loginfo("Sending waypoint")
+        dest = Pose()
+        dest.position.x, dest.postion.y, dest.position.z = x, y, z
         self.reached = False
 
-        self.pub.publish(pose)
+        self.pub.publish(dest)
 
     def run(self):
         """
@@ -56,3 +56,17 @@ class MotionAutomaton():
         :return:
         """
         rospy.spin()
+
+
+
+def main():
+    rospy.init_node('goto_node')
+    MotionAutomatonObject = MotionAutomaton()
+    MotionAutomatonObject.goTo(0,0,1)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except:
+        rospy.loginfo("User terminated")

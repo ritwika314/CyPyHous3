@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 import rospy
 
@@ -7,12 +7,17 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Twist, Pose
 from tf.transformations import euler_from_quaternion
 
+from hector_uav_msgs.srv import EnableMotors
+
+
 
 
 class robotControl():
     def __init__(self):
-        self.pos_pub = rospy.Publisher('/cmd_vel', Twist, queue_size = 1)
-        self.odom_sub = rospy.Subscriber('/odom', Odometry, self.OdomCallback)
+        self.pos_pub = rospy.Publisher('/drone1/cmd_vel', Twist, queue_size = 1)
+
+        #self.odom_sub = rospy.Subscriber('/odom', Odometry, self.OdomCallback)
+        self.odom_sub = rospy.Subscriber('/drone1/ground_truth/state', Odometry, self.OdomCallback)
         self.__sub_waypoint = rospy.Subscriber('best_Waypoint', Pose, self._waypoint, queue_size=1)
 
 
@@ -20,6 +25,15 @@ class robotControl():
         self.agent_y = 0
         self.agent_z = 0
         self.agent_theta = 0
+
+        # Enable motors using ROS service
+        rospy.wait_for_service('/drone1/enable_motors')
+        try:
+            # Set 'enable_motors' to be True
+            enable = rospy.ServiceProxy('/drone1/enable_motors', EnableMotors)
+            resp = enable(True)
+        except rospy.ServiceException as e:
+            rospy.loginfo("Service call failed with %s", e)
 
 
     def OdomCallback(self, msg):
@@ -68,3 +82,13 @@ class robotControl():
             rate.sleep()
 
         return 1
+
+def main():
+    rospy.init_node("control_node")
+    robotControlObject = robotControl()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except:
+        rospy.loginfo("User terminated with Crtl-C!")
