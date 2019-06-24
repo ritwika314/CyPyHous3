@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 import rospy
 import time
@@ -10,15 +10,21 @@ from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Point, Twist, Pose,PoseStamped
 
+from robot_control import robotControl
+from initial_best_protocol import BestProtocol
+
+from std_msgs.msg import String
+
 
 class MotionAutomaton():
 
     def __init__(self):
-         self.__reached = False
+         rospy.init_node('goto_node')
+         self.reached = False
          self.__position = Pose()
 
          self.__pub = rospy.Publisher('Waypoint_bot', Pose, queue_size=1)
-         self.__sub_reached = rospy.Subscriber('/Reached', String, self._getReached, queue_size=1)
+         self.__sub_reached = rospy.Subscriber('reached', String, self._getReached, queue_size=1)
          self.__sub_odom = rospy.Subscriber('/drone1/ground_truth/state', Odometry, self._getOdom, queue_size=1) #Subscribeed to odom instead of vicon
 
          time.sleep(1)
@@ -38,6 +44,13 @@ class MotionAutomaton():
         """
         self.position = data.pose
 
+    def _getReached(self, msg):
+
+        if msg == 'true':
+            self.reached = True
+
+
+
     def goTo(self, x, y, z):  # -> NoReturn:
 
         """
@@ -45,10 +58,10 @@ class MotionAutomaton():
         """
         rospy.loginfo("Sending waypoint")
         dest = Pose()
-        dest.position.x, dest.postion.y, dest.position.z = x, y, z
+        dest.position.x, dest.position.y, dest.position.z = x, y, z
         self.reached = False
 
-        self.pub.publish(dest)
+        self.pub().publish(dest)
 
     def run(self):
         """
@@ -58,15 +71,26 @@ class MotionAutomaton():
         rospy.spin()
 
 
-
 def main():
-    rospy.init_node('goto_node')
+    rospy.loginfo("main begin")
     MotionAutomatonObject = MotionAutomaton()
-    MotionAutomatonObject.goTo(0,0,1)
+    # robotControlObject = robotControl()
+    # BestProtocolObject = BestProtocol()
+    MotionAutomatonObject.goTo(1,-0.5,0.5)
+    rospy.sleep(10)
+    MotionAutomatonObject.goTo(2,-0.5,0.5)
+
+    #rospy.loginfo(MotionAutomatonObject.reached())
+
+
+    rospy.loginfo("here")
+    rospy.spin()
+
+
 
 
 if __name__ == '__main__':
     try:
         main()
     except:
-        rospy.loginfo("User terminated")
+        rospy.loginfo("goto")
