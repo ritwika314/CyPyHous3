@@ -9,11 +9,14 @@ from geometry_msgs.msg import Point, Twist, Pose, PoseStamped
 
 
 
+
+
 class BestProtocol():
 
     def __init__(self):
         rospy.init_node('protocol_node')
         self.__sub_waypoint = rospy.Subscriber('Waypoint_bot', Pose, self._evalWaypoint, queue_size=1)
+        self.__sub_odom = rospy.Subscriber('/drone1/ground_truth/state', Odometry, self._OdomCallback)
         self.__pub = rospy.Publisher('best_Waypoint', Pose, queue_size=1)
 
         self.safety_pt_x = 0
@@ -35,6 +38,21 @@ class BestProtocol():
         """
         return self.__pub
 
+    def _OdomCallback(self, data):
+        agent_x = data.pose.pose.position.x
+        agent_y = data.pose.pose.position.y
+        agent_z = data.pose.pose.position.z
+
+        if(agent_x < self.boundary_x_min or agent_x > self.boundary_x_max or agent_y < self.boundary_y_min or agent_y > self.boundary_y_max):
+            rospy.loginfo("monitoring system triggered")
+            corrected_Waypoint = Pose()
+            corrected_Waypoint.position.x = self.safety_pt_x
+            corrected_Waypoint.position.y = self.safety_pt_y
+            corrected_Waypoint.position.z = self.safety_pt_z
+            self.pub().publish(corrected_Waypoint)
+
+
+
     def _evalWaypoint(self, data):
 
         rospy.loginfo('Evaluating waypoint')
@@ -50,9 +68,14 @@ class BestProtocol():
             corrected_Waypoint.position.y = self.safety_pt_y
             corrected_Waypoint.position.z = self.safety_pt_z
         else:
+            rospy.loginfo('safe waypoint')
             corrected_Waypoint.position.x = waypoint_x
             corrected_Waypoint.position.y = waypoint_y
             corrected_Waypoint.position.z = waypoint_z
+
+        # corrected_Waypoint.position.x = waypoint_x
+        # corrected_Waypoint.position.y = waypoint_y
+        # corrected_Waypoint.position.z = waypoint_z
 
         self.pub().publish(corrected_Waypoint)
 

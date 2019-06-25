@@ -10,7 +10,7 @@ from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Point, Twist, Pose,PoseStamped
 
-from robot_control import robotControl
+#from robot_control import robotControl
 from initial_best_protocol import BestProtocol
 
 from std_msgs.msg import String
@@ -24,7 +24,7 @@ class MotionAutomaton():
          self.__position = Pose()
 
          self.__pub = rospy.Publisher('Waypoint_bot', Pose, queue_size=1)
-         self.__sub_reached = rospy.Subscriber('reached', String, self._getReached, queue_size=1)
+         #self.__sub_reached = rospy.Subscriber('reached', String, self._getReached, queue_size=1)
          self.__sub_odom = rospy.Subscriber('/drone1/ground_truth/state', Odometry, self._getOdom, queue_size=1) #Subscribeed to odom instead of vicon
 
          time.sleep(1)
@@ -76,9 +76,9 @@ def main():
     MotionAutomatonObject = MotionAutomaton()
     # robotControlObject = robotControl()
     # BestProtocolObject = BestProtocol()
-    MotionAutomatonObject.goTo(1,-0.5,0.5)
-    rospy.sleep(10)
-    MotionAutomatonObject.goTo(2,-0.5,0.5)
+    MotionAutomatonObject.goTo(1,0,0.5)
+    #rospy.sleep(10)
+    #MotionAutomatonObject.goTo(2,-0.5,0.5)
 
     #rospy.loginfo(MotionAutomatonObject.reached())
 
