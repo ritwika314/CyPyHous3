@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+    Description: An initital BEST protocol which only involves checking preset boundary locations
+    for a vehicle
+"""
+
+
 import rospy
 
 from math import atan2
@@ -9,16 +15,19 @@ from geometry_msgs.msg import Point, Twist, Pose, PoseStamped
 
 
 
-
-
 class BestProtocol():
 
     def __init__(self):
         rospy.init_node('protocol_node')
+
+        #Topics Subscribed to:
         self.__sub_waypoint = rospy.Subscriber('Waypoint_bot', Pose, self._evalWaypoint, queue_size=1)
-        self.__sub_odom = rospy.Subscriber('/drone1/ground_truth/state', Odometry, self._OdomCallback)
+        self.__sub_odom = rospy.Subscriber('/drone1/ground_truth/state', Odometry, self._OdomCallback, queue_size=1)
+
+        #Topics Published to:
         self.__pub = rospy.Publisher('best_Waypoint', Pose, queue_size=1)
 
+        #static safety point defintions
         self.safety_pt_x = 0
         self.safety_pt_y = 0
         self.safety_pt_z = 0
@@ -28,6 +37,9 @@ class BestProtocol():
         self.boundary_x_max = 1
         self.boundary_y_min = -1
         self.boundary_y_max = 1
+        self.boundary_z_min = -1
+        self.boundary_z_max = 1
+
         rospy.loginfo("protcol initialized")
 
 
@@ -39,11 +51,21 @@ class BestProtocol():
         return self.__pub
 
     def _OdomCallback(self, data):
+        """
+        Description: call back method for odometry topic. Modifies waypoint if
+                     if necessary
+
+        Inputs: data -> contains information on current vehicle position
+
+        Ouputs: publishes to best_Waypoint topic if necessary
+
+        """
         agent_x = data.pose.pose.position.x
         agent_y = data.pose.pose.position.y
         agent_z = data.pose.pose.position.z
 
-        if(agent_x < self.boundary_x_min or agent_x > self.boundary_x_max or agent_y < self.boundary_y_min or agent_y > self.boundary_y_max):
+        #geofence condition check
+        if(agent_x < self.boundary_x_min or agent_x > self.boundary_x_max or agent_y < self.boundary_y_min or agent_y > self.boundary_y_max or agent_z < self.boundary_z_min or agent_z > self.boundary_z_max):
             rospy.loginfo("monitoring system triggered")
             corrected_Waypoint = Pose()
             corrected_Waypoint.position.x = self.safety_pt_x
@@ -54,6 +76,15 @@ class BestProtocol():
 
 
     def _evalWaypoint(self, data):
+        """
+        Description: call back method for waypoint bot topic. Modifies waypoint if
+                     if necessary
+
+        Inputs: data -> contains information on desired waypoint
+
+        Ouputs: publishes to best_Waypoint topic whenever called
+
+        """
 
         rospy.loginfo('Evaluating waypoint')
         corrected_Waypoint = Pose()
@@ -62,7 +93,8 @@ class BestProtocol():
         waypoint_y = data.position.y
         waypoint_z = data.position.z
 
-        if(waypoint_x < self.boundary_x_min or waypoint_x > self.boundary_x_max or waypoint_y < self.boundary_y_min or waypoint_y > self.boundary_y_max):
+        #geofence condition  check
+        if(waypoint_x < self.boundary_x_min or waypoint_x > self.boundary_x_max or waypoint_y < self.boundary_y_min or waypoint_y > self.boundary_y_max  agent_z < self.boundary_z_min or agent_z > self.boundary_z_max):
             rospy.loginfo("Waypoint out of bounds, sending home")
             corrected_Waypoint.position.x = self.safety_pt_x
             corrected_Waypoint.position.y = self.safety_pt_y
@@ -89,5 +121,5 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except:
-        rospy.loginfo("BEST")
+    except:rospy.ROSInterruptException
+        rospy.loginfo("BEST protocol terminated")

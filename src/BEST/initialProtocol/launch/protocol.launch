@@ -1,7 +1,0 @@
-<launch>
-
-  <node name="control_node" pkg="initialProtocol" type="robot_control.py" />
-  <node name="protocol_node" pkg="initialProtocol" type="initial_best_protocol.py" />
-  <node name="goto_node" pkg="initialProtocol" type="goTo.py" />
-
-</launch>
