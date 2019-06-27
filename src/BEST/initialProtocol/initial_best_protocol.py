@@ -94,7 +94,7 @@ class BestProtocol():
         waypoint_z = data.position.z
 
         #geofence condition  check
-        if(waypoint_x < self.boundary_x_min or waypoint_x > self.boundary_x_max or waypoint_y < self.boundary_y_min or waypoint_y > self.boundary_y_max  agent_z < self.boundary_z_min or agent_z > self.boundary_z_max):
+        if(waypoint_x < self.boundary_x_min or waypoint_x > self.boundary_x_max or waypoint_y < self.boundary_y_min or waypoint_y > self.boundary_y_max or waypoint_z < self.boundary_z_min or waypoint_z > self.boundary_z_max):
             rospy.loginfo("Waypoint out of bounds, sending home")
             corrected_Waypoint.position.x = self.safety_pt_x
             corrected_Waypoint.position.y = self.safety_pt_y
@@ -121,5 +121,5 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except:rospy.ROSInterruptException
+    except rospy.ROSInterruptException:
         rospy.loginfo("BEST protocol terminated")

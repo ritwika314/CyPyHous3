@@ -77,8 +77,8 @@ def main():
     # robotControlObject = robotControl()
     # BestProtocolObject = BestProtocol()
     MotionAutomatonObject.goTo(1,0,0.5)
-    #rospy.sleep(10)
-    #MotionAutomatonObject.goTo(2,-0.5,0.5)
+    rospy.sleep(10)
+    MotionAutomatonObject.goTo(2,-0.5,0.5)
 
     #rospy.loginfo(MotionAutomatonObject.reached())
 
