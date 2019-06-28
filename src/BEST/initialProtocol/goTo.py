@@ -23,7 +23,7 @@ class MotionAutomaton():
          self.reached = False
          self.__position = Pose()
 
-         self.__pub = rospy.Publisher('Waypoint_bot', Pose, queue_size=1)
+         self.__pub = rospy.Publisher("/drone1/waypoint_bot", Pose, queue_size=1)
          #self.__sub_reached = rospy.Subscriber('reached', String, self._getReached, queue_size=1)
          self.__sub_odom = rospy.Subscriber('/drone1/ground_truth/state', Odometry, self._getOdom, queue_size=1) #Subscribeed to odom instead of vicon
 

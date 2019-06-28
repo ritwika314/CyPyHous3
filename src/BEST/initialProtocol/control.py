@@ -19,7 +19,7 @@ class GoTo():
             self.drones.append(Drone(i+1))
             self.complete.append(0)
 
-        self.__sub_waypoint = rospy.Subscriber('best_Waypoint', Pose, self.next_waypoint, queue_size=1)
+        self.__sub_waypoint = rospy.Subscriber('/drone1/best_waypoint', Pose, self.next_waypoint, queue_size=1)
 
         self.waypointQueue = queue.Queue()
 
@@ -73,7 +73,7 @@ class GoTo():
 
 
                 if abs(diff_x) < 0.1 and abs(diff_y) < 0.1 and abs(diff_z) < 0.2:
-                    #rospy.loginfo("reached")
+                    rospy.loginfo("reached")
                     move_cmd.linear.x = 0.0
                     move_cmd.linear.y = 0.0
                     move_cmd.linear.z = 0.0
