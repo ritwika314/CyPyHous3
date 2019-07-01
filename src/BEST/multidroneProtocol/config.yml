@@ -1,0 +1,11 @@
+/drone1:
+  safetyPoint: [0, 0, 0]
+  xBound: [-1, 1]
+  yBound: [-1, 1]
+  zBound: [-1, 1]
+
+/drone2:
+  safetyPoint: [0, 2, 0]
+  xBound: [-1, 1]
+  yBound: [1, 3]
+  zBound: [-1, 1]
