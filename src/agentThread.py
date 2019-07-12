@@ -1,10 +1,12 @@
 import pickle
 import signal
 import socket
-from abc import ABC, abstractmethod
+from abc import ABC,abstractmethod
 from threading import Thread, Event
+from base_mutex import BaseMutex
 
 from comm_handler import CommHandler
+from comm_handler import CommTimeoutError
 from gvh import Gvh
 from message import Message
 
@@ -19,7 +21,7 @@ class AgentThread(ABC, Thread):
     __stop_event : stop thread safely.
     """
 
-    def __init__(self, agent_gvh: Gvh, agent_comm_handler: CommHandler, mutex_handler=None) -> None:
+    def __init__(self, agent_gvh, agent_comm_handler, mutex_handler= None) -> None:
         """
         init method for for agent application thread object.
         :param agent_gvh: agent global variable holder object
@@ -30,13 +32,17 @@ class AgentThread(ABC, Thread):
         self.__agent_comm_handler = agent_comm_handler
         self.__stop_event = Event()
         self.__mutex_handler = mutex_handler
+        self.requestedlock = False
+        self.req_num = 0
+        self.baselock = None
         self.__locals = {}
 
         # create a signal handler to handle ctrl + c
         signal.signal(signal.SIGINT, self.signal_handler)
 
+
     def create_ar_var(self, name, type, initial_value=None):
-        self.agent_gvh.create_ar_var(name,type,initial_value)
+        self.agent_gvh.create_ar_var(name, type, initial_value)
         pass
 
     def create_aw_var(self, name, type, initial_value=None):
@@ -46,7 +52,6 @@ class AgentThread(ABC, Thread):
     @property
     def locals(self):
         return self.__locals
-
 
     @locals.setter
     def locals(self, locals):
@@ -106,12 +111,10 @@ class AgentThread(ABC, Thread):
         self.__stop_event.set()
         print("stopped", self.pid())
 
-    def lock(self):
-        pass
 
-    def initialize_vars(self, varlist):
+    @abstractmethod
+    def initialize_vars(self):
         pass
-
 
     def stopped(self) -> bool:
         """
@@ -158,13 +161,52 @@ class AgentThread(ABC, Thread):
         """
         self.stop()
 
+
+
+    def initialize_lock(self):
+        self.baselock = BaseMutex(1, self.agent_gvh.port_list)
+        self.agent_gvh.mutex_handler.add_mutex(self.baselock)
+        self.baselock.agent_comm_handler = self.agent_comm_handler
+
     @abstractmethod
+    def loop_body(self):
+        pass
+
+    def write_to_shared(self, var_name, index, value):
+        if index is not None:
+            self.agent_gvh.put(var_name,value,index)
+        else:
+            self.agent_gvh.put(var_name,value)
+
+    def read_from_shared(self, var_name, index):
+        if index is not None:
+            return self.agent_gvh.get(var_name,index)
+        else:
+            return self.agent_gvh.get(var_name)
+        pass
+
+
     def run(self) -> None:
         """
         needs to be implemented for any agenThread
         :return:
         """
-        pass
+
+        self.initialize_lock()
+        self.initialize_vars()
+        import time
+        while not (self.stopped()):
+            time.sleep(0.4)
+            self.agent_gvh.flush_msgs()
+            self.agent_comm_handler.handle_msgs()
+            time.sleep(0.4)
+
+            try:
+                self.loop_body()
+
+            except CommTimeoutError:
+                print("timed out on communication")
+                self.stop()
 
 
 def send(msg: Message, ip: str, port: int) -> None:
