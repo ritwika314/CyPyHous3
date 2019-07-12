@@ -1,39 +1,11 @@
 import time
-
-import basic_synchronizer
 from agentThread import AgentThread
-from base_mutex import BaseMutex
-from comm_handler import CommHandler, CommTimeoutError
-from gvh import Gvh
-from mutex_handler import BaseMutexHandler
 
 
-class AgentCreation(AgentThread):
-    """
-    test class to test that agent thread objects are created
-    and fields are accessed safely and correctly .
-    """
+class DefaultName(AgentThread):
 
-    def __init__(self, pid, participants, receiver_ip, r_port):
-        """
-        parameters to instantiate the gvh and communication handler.
-        :param pid:
-        :param participants:
-        :param r_port:
-        """
-        #config object.
-        #agent_gvh = Gvh(config.pid, config.participants)
-        #agent_gvh.port_list = config.port_list
-        agent_gvh = Gvh(pid, participants)
-        agent_gvh.port_list = [2000,2001,2002,2005,2004]
-        if pid == 0:
-            agent_gvh.is_leader = True
-
-        mutex_handler = BaseMutexHandler(agent_gvh.is_leader, pid)
-        agent_gvh.mutex_handler = mutex_handler
-        agent_comm_handler = CommHandler(receiver_ip, r_port)
-        agent_comm_handler.agent_gvh = agent_gvh
-        super(AgentCreation, self).__init__(agent_gvh,agent_comm_handler,mutex_handler)
+    def __init__(self, config):
+        super(DefaultName, self).__init__(config)
         self.start()
 
     def initialize_vars(self):
@@ -59,18 +31,15 @@ class AgentCreation(AgentThread):
             self.write_to_shared('numadded', None, self.read_from_shared('numadded', None) + 1)
             self.locals['added'] = True
 
+            #self.unlock()
             time.sleep(0.4)
             self.baselock.release_mutex()
             self.requestedlock = False
             return
 
-        if self.agent_gvh.get('numadded') >= self.agent_gvh.participants:
-            self.locals['finalsum'] = self.agent_gvh.get('sum')
+        if self.read_from_shared('numadded',None) >= self.num_agents():
+            self.locals['finalsum'] = self.read_from_shared('sum',None)
             print('final sum for', self.pid(), 'is', self.locals['finalsum'])
             return
-
-
-
-b,c,d = AgentCreation(2, 3, "", 2001),AgentCreation(4, 3, "", 2002),AgentCreation(0, 3, "", 2000)
 
 

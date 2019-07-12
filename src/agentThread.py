@@ -4,12 +4,21 @@ import socket
 from abc import ABC,abstractmethod
 from threading import Thread, Event
 from base_mutex import BaseMutex
+from mutex_handler import BaseMutexHandler
 
 from comm_handler import CommHandler
 from comm_handler import CommTimeoutError
 from gvh import Gvh
 from message import Message
 
+
+class config(object):
+    def __init__(self, pid, bots, rip,rport,plist):
+        self.pid = pid
+        self.bots = bots
+        self.rip = rip
+        self.rport = rport
+        self.plist = plist
 
 class AgentThread(ABC, Thread):
     """
@@ -21,13 +30,23 @@ class AgentThread(ABC, Thread):
     __stop_event : stop thread safely.
     """
 
-    def __init__(self, agent_gvh, agent_comm_handler, mutex_handler= None) -> None:
+    def __init__(self, c:config) -> None:
         """
         init method for for agent application thread object.
         :param agent_gvh: agent global variable holder object
         :param agent_comm_handler: agent communication handler thread object
         """
         super(AgentThread, self).__init__()
+        agent_gvh = Gvh(c.pid, c.bots)
+        agent_gvh.port_list = c.plist
+        if c.pid == 0:
+            agent_gvh.is_leader = True
+
+        mutex_handler = BaseMutexHandler(agent_gvh.is_leader, c.pid)
+        agent_gvh.mutex_handler = mutex_handler
+        agent_comm_handler = CommHandler(c.rip, c.rport)
+        agent_comm_handler.agent_gvh = agent_gvh
+
         self.__agent_gvh = agent_gvh
         self.__agent_comm_handler = agent_comm_handler
         self.__stop_event = Event()
@@ -40,6 +59,8 @@ class AgentThread(ABC, Thread):
         # create a signal handler to handle ctrl + c
         signal.signal(signal.SIGINT, self.signal_handler)
 
+    def num_agents(self):
+        return self.agent_gvh.participants
 
     def create_ar_var(self, name, type, initial_value=None):
         self.agent_gvh.create_ar_var(name, type, initial_value)
