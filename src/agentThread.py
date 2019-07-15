@@ -39,8 +39,7 @@ class AgentThread(ABC, Thread):
         super(AgentThread, self).__init__()
         agent_gvh = Gvh(c.pid, c.bots)
         agent_gvh.port_list = c.plist
-        if c.pid == 0:
-            agent_gvh.is_leader = True
+        agent_gvh.is_leader = c.pid == 0
 
         mutex_handler = BaseMutexHandler(agent_gvh.is_leader, c.pid)
         agent_gvh.mutex_handler = mutex_handler
@@ -228,6 +227,23 @@ class AgentThread(ABC, Thread):
             except CommTimeoutError:
                 print("timed out on communication")
                 self.stop()
+
+	
+    def lock(self):
+        if not self.requestedlock:
+            self.baselock.request_mutex(self.req_num)
+            self.requestedlock = True
+            self.req_num += 1
+            return False
+        else:
+            if not self.agent_gvh.mutex_handler.has_mutex(self.baselock.mutex_id):
+                return False
+        return True
+
+    def unlock(self):
+        time.sleep(0.4)
+        self.baselock.release_mutex()
+        self.requestedlock = False
 
 
 def send(msg: Message, ip: str, port: int) -> None:
