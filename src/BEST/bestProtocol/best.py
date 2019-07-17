@@ -143,7 +143,10 @@ class BESTProtocol():
             rospy.loginfo(self.vehicle_id+": Waypoint out of bounds, sending home")
             BESTwaypt.pose.position.x = self.__safetyPtX
             BESTwaypt.pose.position.y = self.__safetyPtY
-            BESTwaypt.pose.position.z = self.__safetyPtZ
+            if self.__safetyPtZ <= 0:
+                BESTwaypt.pose.position.z = .5
+            else:
+                BESTwaypt.pose.position.z = self.__safetyPtZ
             BESTwaypt.header.frame_id = frame_id
             self.__bestTriggered = 1
 
