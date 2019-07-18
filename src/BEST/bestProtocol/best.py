@@ -11,6 +11,7 @@
 import rospy
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped
+from std_msgs.msg import String
 
 import yaml
 
@@ -33,11 +34,13 @@ class BESTProtocol():
         #Subscribed from MotionAutomata
         self.__wayptSub = rospy.Subscriber("Waypoint_tobest", PoseStamped, self.__evalWaypt, queue_size=10)
 
+        self.__wayptSub = rospy.Subscriber("Manual_terminate", String, self.__manualTerminate, queue_size=10)
+
         #Monitoring System
         #self.__odomSub = rospy.Subscriber(vehicle_id+"/ground_truth/state", Odometry, self.__monitor, queue_size=10)
 
         #Subsribed from fakegps.cpp (for drone)
-        self.__reachedSub = rospy.Subscriber("reached", String, self.__reachedWaypt, queue_size=10)
+        self.__reachedSub = rospy.Subscriber("Reached", String, self.__reachedWaypt, queue_size=10)
 
 
         #Publishes to fakegps.cpp (for drones)
@@ -61,11 +64,12 @@ class BESTProtocol():
         self.__maxBoundZ = cfg.get(self.vehicle_id).get("zBound")[1]
 
         self.__bestTriggered = 0
+        self.__landed = 0
 
         rospy.loginfo("Drone BEST Protocol inititalized")
 
 
-    def __reachedWaypt(self):
+    def __reachedWaypt(self,data):
         '''
             DESCRIPTION:
                 Monitors whether a vehicle has reached a waypoint and tells drone to land at its current position
@@ -78,15 +82,29 @@ class BESTProtocol():
                 land: PoseStamped type message which is published on the "Waypoint" topic
 
         '''
-
-        if self.__bestTriggered:
+        rospy.loginfo("Reached waypoint called")
+        if self.__bestTriggered and self.__landed == 0:
+            rospy.loginfo("Landing..")
             land = PoseStamped()
-            land.header.frame_id = 2
+            land.header.frame_id = "2"
+            land.pose.position.x = self.__safetyPtX
+            land.pose.position.y = self.__safetyPtY
+            land.pose.position.z = self.__safetyPtZ
             self.__bestPub.publish(land)
+            self.__landed = 1
 
 
 
-
+    def __manualTerminate(self,data):
+        rospy.loginfo("Manual terminate trigged, landing immediately")
+        land = PoseStamped()
+        land.header.frame_id = "2"
+        land.pose.position.x = self.__safetyPtX
+        land.pose.position.y = self.__safetyPtY
+        land.pose.position.z = self.__safetyPtZ
+        self.__bestPub.publish(land)
+        rospy.loginfo("Land command sended to drone controller")
+        self.__landed = 1
 
     def __monitor(self, data):
         '''
