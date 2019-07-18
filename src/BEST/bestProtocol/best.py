@@ -40,11 +40,11 @@ class BESTProtocol():
         #self.__odomSub = rospy.Subscriber(vehicle_id+"/ground_truth/state", Odometry, self.__monitor, queue_size=10)
 
         #Subsribed from fakegps.cpp (for drone)
-        self.__reachedSub = rospy.Subscriber("Reached", String, self.__reachedWaypt, queue_size=10)
+        self.__reachedSub = rospy.Subscriber("/drone/reached", String, self.__reachedWaypt, queue_size=10)
 
 
         #Publishes to fakegps.cpp (for drones)
-        self.__bestPub = rospy.Publisher("Waypoint", PoseStamped, queue_size=10)
+        self.__bestPub = rospy.Publisher("/drone/waypoint", PoseStamped, queue_size=10)
 
         with open("config.yml", "r") as ymlfile:
             cfg = yaml.safe_load(ymlfile)
