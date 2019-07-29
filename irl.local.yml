@@ -1,0 +1,28 @@
+agent:
+  on_device: drone2
+  pid: 2
+  plist:
+  - 2001
+  - 2003
+device:
+  bot_name: drone2
+  bot_type: QUAD
+  ip: 127.0.0.1
+  motion_automata:
+  - MoatTestDrone
+  planner: SimplePlanner
+  port: 2002
+  positioning_topic:
+    topic: /vrpn_client_node/
+    type: PoseStamped
+  queue_size: 1
+  reached_topic:
+    topic: /Reached
+    type: String
+  ros_node_prefix: quad_wp_node
+  waypoint_topic:
+    topic: Waypoint
+    type: PoseStamped
+leader_pid: 1
+mutex_handler: BaseMutexHandler
+num_agents: 3
