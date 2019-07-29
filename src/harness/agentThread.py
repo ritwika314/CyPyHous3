@@ -3,6 +3,7 @@ import time
 from abc import ABC, abstractmethod
 from threading import Thread, Event
 from typing import Union
+from geometry_msgs.msg import Pose
 
 from src.config.configs import AgentConfig, MoatConfig
 from src.harness.comm_handler import CommHandler
@@ -40,6 +41,14 @@ class AgentThread(ABC, Thread):
     def create_ar_var(self, name, dtype, initial_value=None):
         self.agent_gvh.create_ar_var(name, dtype, initial_value)
         pass
+        
+
+    def pos3d(self, a, b, c):
+        pos = Pose()
+        pos.position.x, pos.position.y, pos.position.z = a, b, c
+        return pos
+
+
 
     def create_aw_var(self, name, dtype, initial_value=None):
         self.agent_gvh.create_aw_var(name, dtype, initial_value)
