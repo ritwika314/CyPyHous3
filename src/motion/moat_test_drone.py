@@ -28,7 +28,6 @@ class MoatTestDrone(MotionAutomaton):
         self.goTo(landing)
 
     def moat_init_action(self):
-        self.position = Pos()
         self.takeoff()
 
     def moat_exit_action(self):
