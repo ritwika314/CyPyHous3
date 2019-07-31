@@ -1,9 +1,11 @@
 agent:
+  motion_automaton: MoatTestDrone
   on_device: drone2
   pid: 2
   plist:
   - 2001
   - 2003
+
 device:
   bot_name: drone2
   bot_type: QUAD

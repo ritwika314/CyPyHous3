@@ -9,14 +9,17 @@ from src.motion.moat_test_drone import MoatTestDrone
 from src.motion.rrt_star import RRT
 from src.motion.simpleplanner import SimplePlanner
 
+from geometry_msgs.msg import PoseStamped
+from std_msgs.msg import String
+
 planner_dict = dict()
 planner_dict['SimplePlanner'] = SimplePlanner()
 planner_dict['RRT'] = RRT
 planner_dict['DemoPlan'] = DemoPlan
 
 msg_type_dict = dict()
-msg_type_dict['PoseStamped'] = 'PoseStamped'
-msg_type_dict['String'] = 'String'
+msg_type_dict['PoseStamped'] = PoseStamped
+msg_type_dict['String'] = String
 
 bot_type_dict = dict()
 bot_type_dict['CAR'] = BotType.CAR

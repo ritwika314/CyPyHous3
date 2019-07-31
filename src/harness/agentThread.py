@@ -238,3 +238,7 @@ class AgentThread(ABC, Thread):
 
             if self.agent_comm_handler.stopped():
                 self.stop()
+
+    def write_to_actuator(self, var_name, val):
+        if var_name == "target":
+            self.agent_gvh.moat.goTo(val)

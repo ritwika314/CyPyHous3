@@ -38,6 +38,6 @@ class BasicFollowApp(AgentThread):
             return
 
 
-m = default_car_moat_config('hotdec_car')
-a = AgentConfig(1, 1, "", 2000, moat_class=MoatTestCar)
-app = BasicFollowApp(a, m)
+#m = default_car_moat_config('hotdec_car')
+#a = AgentConfig(1, 1, "", 2000, moat_class=MoatTestCar)
+#app = BasicFollowApp(a, m)
