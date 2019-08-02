@@ -1,7 +1,9 @@
 import numpy as np
+import time
 
 from src.motion.motionautomaton import MotionAutomaton
 from src.motion.pos import Pos
+
 
 
 class MoatTestDrone(MotionAutomaton):

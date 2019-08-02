@@ -24,9 +24,11 @@ class MotionAutomaton(threading.Thread, ABC):
         try:
             import rospy
             rospy.init_node(config.rospy_node, anonymous=True)
+            print("this code is initalizing correcctly")
             self.__pub = rospy.Publisher(*gen_waypoint_params(config), queue_size=config.queue_size)
             self.__sub_reached = rospy.Subscriber(*gen_reached_params(config), self._getReached,
                                                   queue_size=config.queue_size)
+            print(str(gen_positioning_params(config)))
             self.__sub_positioning = rospy.Subscriber(*gen_positioning_params(config), self._getPositioning,
                                                       queue_size=config.queue_size)
 
@@ -37,6 +39,9 @@ class MotionAutomaton(threading.Thread, ABC):
             print("maybe issue with ros installation")
 
         time.sleep(1)
+        while self.position is None:
+          print("waiting for position to not be none")
+          time.sleep(1)
         self.moat_init_action()
 
     @abstractmethod
