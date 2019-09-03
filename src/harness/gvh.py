@@ -192,10 +192,10 @@ class Gvh(object):
             msg = dsm_update_create(self.pid, var, var.owner, self.round_num)
             if not self.__port_list == []:
                 for port in self.__port_list:
-                    for ip in self.agent_gvh.ip_list:
+                    for ip in self.ip_list:
                         send(msg, ip, port)
             else:
-                for ip in self.agent_gvh.ip_list:
+                for ip in self.ip_list:
                     send(msg, ip, self.__rport)
 
     @property
