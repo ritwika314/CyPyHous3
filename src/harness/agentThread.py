@@ -52,7 +52,7 @@ class AgentThread(ABC, Thread):
         pass
 
     def initialize_lock(self, key):
-        self.baselocks[key] = BaseMutex(1, self.agent_gvh.port_list)
+        self.baselocks[key] = BaseMutex(1, self.agent_gvh.port_list, self.agent_gvh.ip_list)
         self.agent_gvh.mutex_handler.add_mutex(self.baselocks[key])
         self.baselocks[key].agent_comm_handler = self.agent_comm_handler
         self.requestedlocks[key] = False
@@ -224,10 +224,11 @@ class AgentThread(ABC, Thread):
         stop_msg = stop_msg_create(self.pid(), self.agent_gvh.round_num,self.agent_gvh.round_num)
         if len(self.agent_gvh.port_list) is not 0:
             for port in self.agent_gvh.port_list:
-                send(stop_msg, "<broadcast>", port)
+                for ip in self.agent_gvh.ip_list:
+                    send(stop_msg, ip, port)
         else:
-            send(stop_msg, "<broadcast>", self.receiver_port())
-
+            for ip in self.agent_gvh.ip_list:
+                send(stop_msg, ip, self.receiver_port())
 
     def run(self) -> None:
         """
@@ -242,9 +243,11 @@ class AgentThread(ABC, Thread):
             self.msg_handle()
             if len(self.agent_gvh.port_list) is not 0:
                 for port in self.agent_gvh.port_list:
-                    send(init_msg, "<broadcast>", port)
+                    for ip in self.agent_gvh.ip_list:
+                        send(init_msg, ip, port)
             else:
-                send(init_msg, "<broadcast>", self.receiver_port())
+                for ip in self.agent_gvh.ip_list:
+                    send(init_msg, ip, self.receiver_port())
             time.sleep(0.05)
 
         while not self.stopped():
@@ -266,9 +269,11 @@ class AgentThread(ABC, Thread):
                     self.msg_handle()
                     if len(self.agent_gvh.port_list) is not 0:
                         for port in self.agent_gvh.port_list:
-                            send(round_update_msg, "<broadcast>", port)
+                            for ip in self.agent_gvh.ip_list:
+                                send(round_update_msg, ip, port)
                     else:
-                        send(round_update_msg, "<broadcast>", self.receiver_port())
+                        for ip in self.agent_gvh.ip_list:
+                            send(round_update_msg, ip, self.receiver_port())
                     time.sleep(0.1)
 
                 if self.stopped():

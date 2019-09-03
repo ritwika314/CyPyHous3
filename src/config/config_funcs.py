@@ -46,6 +46,7 @@ def get_configs(config_filename: str) \
         is_leader=is_leader,
         mh=mh,
         plist=agent_dict['plist'],
+        iplist=agent_dict['iplist'],
         mhargs=[is_leader,pid]
     )
 

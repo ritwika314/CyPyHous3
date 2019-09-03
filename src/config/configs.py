@@ -5,17 +5,22 @@ from typing import Union
 
 class AgentConfig(object):
     def __init__(self, pid: int, bots: int, rip: str, rport: int, plist: Union[list, None] = None,
+                 iplist: Union[list, None] = None,
                  mh: Union[None, classmethod] = None, is_leader=False, moat_class=None,
                  mhargs: Union[list, None] = None):
         if plist is None:
             plist = []
         if mhargs is None:
             mhargs = []
+        if iplist is None:
+            iplist = []
+
         self.pid = pid
         self.bots = bots
         self.rip = rip
         self.rport = rport
         self.plist = plist
+        self.iplist = iplist
         if mh is not None:
             self.mutex_handler = mh(*mhargs)
         else:
@@ -24,12 +29,12 @@ class AgentConfig(object):
         self.moat_class = moat_class
 
     def __eq__(self, other):
-        return self.pid == other.pid and\
-               self.bots == other.bots and\
+        return self.pid == other.pid and \
+               self.bots == other.bots and \
                self.rip == other.rip and \
-               self.rport == other.rport and\
-               self.plist == other.plist and\
-               self.mutex_handler == other.mutex_handler and\
+               self.rport == other.rport and \
+               self.plist == other.plist and \
+               self.mutex_handler == other.mutex_handler and \
                self.is_leader == other.is_leader and \
                self.moat_class == other.moat_class
 
@@ -113,12 +118,12 @@ def gen_positioning_params(config: MoatConfig):
 
 
 def gen_reached_params(config: MoatConfig):
-    #return config.bot_name + '/' + config.rospy_node + '/' + config.reached_topic, config.rchd_msg_type
+    # return config.bot_name + '/' + config.rospy_node + '/' + config.reached_topic, config.rchd_msg_type
     return config.rospy_node + '/' + config.reached_topic, config.rchd_msg_type
 
 
 def gen_waypoint_params(config: MoatConfig):
-    #return config.bot_name + '/' + config.rospy_node + '/' + config.waypoint_topic, config.pos_msg_type
+    # return config.bot_name + '/' + config.rospy_node + '/' + config.waypoint_topic, config.pos_msg_type
     return config.rospy_node + '/' + config.waypoint_topic, config.pos_msg_type
 
 

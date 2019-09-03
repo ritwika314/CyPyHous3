@@ -3,6 +3,7 @@ agent:
   on_device: drone1
   pid: 1
   plist: [2001,2003]
+  iplist: ['192.168.1.14','192.168.1.4']
 device:
   bot_name: drone1
   bot_type: QUAD

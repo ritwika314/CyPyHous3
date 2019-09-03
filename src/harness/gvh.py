@@ -40,6 +40,7 @@ class Gvh(object):
         self.__participants = a.bots
         self.__msg_list = []
         self.__recv_msg_list = []
+        self.__ip_list = a.iplist
         self.__port_list = a.plist
         self.__rport = a.rport
         self.__is_leader = a.is_leader
@@ -77,6 +78,10 @@ class Gvh(object):
     @property
     def rport(self):
         return self.__rport
+
+    @property
+    def ip_list(self):
+        return self.__ip_list
 
 
     @property
@@ -141,9 +146,11 @@ class Gvh(object):
         msg = dsm_update_create(self.pid, a, a.owner, -1)
         if not self.__port_list == []:
             for port in self.__port_list:
-                send(msg, "<broadcast>", port)
+                for ip in self.ip_list:
+                    send(msg, ip, port)
         else:
-            send(msg, "<broadcast>", self.__rport)
+            for ip in self.agent_gvh.ip_list:
+                send(msg, ip, self.__rport)
 
     def get(self, varname: str, pid: int = -1) -> Union[int, bool, float, list, object, tuple]:
         """
@@ -185,9 +192,11 @@ class Gvh(object):
             msg = dsm_update_create(self.pid, var, var.owner, self.round_num)
             if not self.__port_list == []:
                 for port in self.__port_list:
-                    send(msg, "<broadcast>", port)
+                    for ip in self.agent_gvh.ip_list:
+                        send(msg, ip, port)
             else:
-                send(msg, "<broadcast>", self.__rport)
+                for ip in self.agent_gvh.ip_list:
+                    send(msg, ip, self.__rport)
 
     @property
     def port_list(self):
@@ -377,9 +386,11 @@ class Gvh(object):
         for msg in self.msg_list:
             if not self.__port_list == []:
                 for port in self.__port_list:
-                    send(msg, "<broadcast>", port)
+                    for ip in self.agent_gvh.ip_list:
+                        send(msg, ip, port)
             else:
-                send(msg, "<broadcast>", self.__rport)
+                for ip in self.agent_gvh.ip_list:
+                    send(msg, ip, self.__rport)
         self.msg_list = []
 
 

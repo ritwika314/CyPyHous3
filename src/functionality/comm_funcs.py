@@ -1,9 +1,9 @@
 import pickle
 import socket
 
-MAX_UDP_SIZE = 65507  # https://en.wikipedia.org/wiki/User_Datagram_Protocol
-
 from src.objects.message import Message
+
+MAX_UDP_SIZE = 65507  # https://en.wikipedia.org/wiki/User_Datagram_Protocol
 
 
 def send(msg: Message, ip: str, port: int, retry=1) -> None:

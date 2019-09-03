@@ -3,6 +3,7 @@ agent:
   on_device: hotdec_car
   pid: 0
   plist: []
+  iplist: []
 device:
   bot_name: hotdec_car
   bot_type: CAR

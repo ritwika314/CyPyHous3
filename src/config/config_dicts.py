@@ -24,9 +24,12 @@ planner_dict['RRT_CAR'] = RRT_CAR
 planner_dict['DemoPlan'] = DemoPlan
 
 msg_type_dict = dict()
-
-from geometry_msgs.msg import PoseStamped
-from std_msgs.msg import String
+try:
+   from geometry_msgs.msg import PoseStamped
+   from std_msgs.msg import String
+except ModuleNotFoundError:
+    PoseStamped = 'posestampled'
+    String = 'string'
 msg_type_dict['PoseStamped'] = PoseStamped
 msg_type_dict['String'] = String
 

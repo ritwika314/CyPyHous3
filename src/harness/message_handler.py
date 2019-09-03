@@ -24,10 +24,12 @@ def round_update_msg_handle(msg: message.Message, agent_gvh: Gvh):
             #print("sending message to update round", agent_gvh.round_num)
             if len(agent_gvh.port_list) is not 0:
                 for port in agent_gvh.port_list:
+                    for ip in agent_gvh.ip_list:
+                        send(msg1, ip, port)
 
-                    send(msg1, "<broadcast>", port,2)
             else:
-                send(msg1, "<broadcast>", agent_gvh.rport,2)
+                for ip in agent_gvh.ip_list:
+                    send(msg1, ip, agent_gvh.rport,2)
 
 
 def round_update_msg_confirm_handle(msg: message.Message, agent_gvh: Gvh):
@@ -67,9 +69,11 @@ def stop_msg_handle(msg: message.Message, agent_gvh: Gvh):
 
             if len(agent_gvh.port_list) is not 0:
                 for port in agent_gvh.port_list:
-                    send(msg1, "<broadcast>", port)
+                    for ip in agent_gvh.ip_list:
+                        send(msg1, ip, port)
             else:
-                send(msg1, "<broadcast>", agent_gvh.rport)
+                for ip in agent_gvh.ip_list:
+                    send(msg1, ip, agent_gvh.rport)
 
 
 def stop_msg_confirm_handle(msg: message.Message, agent_gvh: Gvh):
@@ -101,9 +105,11 @@ def init_msg_handle(msg: message.Message, agent_gvh: Gvh):
         if len(agent_gvh.init_counter) == agent_gvh.participants:
             if len(agent_gvh.port_list) is not 0:
                 for port in agent_gvh.port_list:
-                    send(msg1, "<broadcast>", port)
+                    for ip in agent_gvh.ip_list:
+                        send(msg1, ip, port)
             else:
-                send(msg1, "<broadcast>", agent_gvh.rport)
+                for ip in agent_gvh.ip_list:
+                    send(msg1, ip, agent_gvh.rport)
 
 
 def init_msg_confirm_handle(msg: message.Message, agent_gvh: Gvh):

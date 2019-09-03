@@ -16,19 +16,22 @@ class BaseMutex(Mutex):
     __agent_comm_handler : "reference" to agent comm handler
     """
 
-    def __init__(self, mutex_id: int, ip_port_list: Union[list, None] = None):
+    def __init__(self, mutex_id: int, port_list: Union[list, None] = None, ip_list: Union[list, None] = None):
         """
         base init method for mutex
         :param mutex_id: mutex id
-        :param ip_port_list: list of ports in case same machine
+        :param port_list: list of ports in case same machine
         """
         super(BaseMutex, self).__init__()
         self.__mutex_id = mutex_id
         self.__mutex_request_list = []
         self.__mutex_holder = None
-        if ip_port_list is None:
-            ip_port_list = []
-        self.__ip_port_list = ip_port_list
+        if port_list is None:
+            port_list = []
+        if ip_list is None:
+            ip_list = []
+        self.__port_list = port_list
+        self.__ip_list = ip_list
         self.__agent_comm_handler = None
 
     @property
@@ -56,12 +59,12 @@ class BaseMutex(Mutex):
         return self.__mutex_holder
 
     @property
-    def ip_port_list(self) -> list:
+    def port_list(self) -> list:
         """
         getter method for the list of ports to send messages to.
         :return:
         """
-        return self.__ip_port_list
+        return self.__port_list
 
     @property
     def agent_comm_handler(self) -> CommHandler:
@@ -98,14 +101,14 @@ class BaseMutex(Mutex):
         """
         self.__mutex_request_list = mutex_request_list
 
-    @ip_port_list.setter
-    def ip_port_list(self, ip_port_list: list) -> None:
+    @port_list.setter
+    def port_list(self, ip_port_list: list) -> None:
         """
         setter method for list of ports.
         :param ip_port_list:
         :return:
         """
-        self.__ip_port_list = ip_port_list
+        self.__port_list = ip_port_list
 
     @agent_comm_handler.setter
     def agent_comm_handler(self, agent_comm_handler: CommHandler) -> None:
@@ -124,12 +127,14 @@ class BaseMutex(Mutex):
         """
         msg = base_mutex_request_create(self.mutex_id, req_num, self.agent_comm_handler.agent_gvh.pid, self.agent_comm_handler.agent_gvh.round_num)
         # print(self.ip_port_list)
-        if not self.ip_port_list == []:
+        if not self.port_list == []:
             # print("here")
-            for port in self.ip_port_list:
-                send(msg, '<broadcast>', port)
+            for port in self.port_list:
+                for ip in self.__ip_list:
+                    send(msg, ip, port)
         else:
-            send(msg, '<broadcast>', self.agent_comm_handler.r_port)
+            for ip in self.__ip_list:
+                send(msg, ip, self.agent_comm_handler.r_port)
 
     def grant_mutex(self, mutexnum: int) -> None:
         """
@@ -143,18 +148,22 @@ class BaseMutex(Mutex):
             msg = base_mutex_grant_create(self.mutex_id, agent_id, self.agent_comm_handler.agent_gvh.pid, mutexnum,
                                           time.time())
 
-            if not self.ip_port_list == []:
-                for port in self.ip_port_list:
-                    send(msg, '<broadcast>', port)
+            if not self.port_list == []:
+                for port in self.port_list:
+                    for ip in self.__ip_list:
+                        send(msg, ip, port)
             else:
-                send(msg, '<broadcast>', self.agent_comm_handler.r_port)
+                for ip in self.__ip_list:
+                    send(msg, ip, self.agent_comm_handler.r_port)
         else:
             pass
 
     def release_mutex(self):
         msg = mutex_release_create(self.mutex_id, self.agent_comm_handler.agent_gvh.pid, self.agent_comm_handler.agent_gvh.round_num)
-        if not self.ip_port_list == []:
-            for port in self.ip_port_list:
-                send(msg, '<broadcast>', port)
+        if not self.port_list == []:
+            for port in self.port_list:
+                for ip in self.__ip_list:
+                    send(msg, ip, port)
         else:
-            send(msg, '<broadcast>', self.agent_comm_handler.r_port)
+            for ip in self.__ip_list:
+                send(msg, ip, self.agent_comm_handler.r_port)
