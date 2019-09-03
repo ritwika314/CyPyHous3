@@ -149,7 +149,7 @@ class Gvh(object):
                 for ip in self.ip_list:
                     send(msg, ip, port)
         else:
-            for ip in self.agent_gvh.ip_list:
+            for ip in self.ip_list:
                 send(msg, ip, self.__rport)
 
     def get(self, varname: str, pid: int = -1) -> Union[int, bool, float, list, object, tuple]:
@@ -386,10 +386,10 @@ class Gvh(object):
         for msg in self.msg_list:
             if not self.__port_list == []:
                 for port in self.__port_list:
-                    for ip in self.agent_gvh.ip_list:
+                    for ip in self.ip_list:
                         send(msg, ip, port)
             else:
-                for ip in self.agent_gvh.ip_list:
+                for ip in self.ip_list:
                     send(msg, ip, self.__rport)
         self.msg_list = []
 
